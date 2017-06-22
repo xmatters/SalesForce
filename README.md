@@ -83,11 +83,135 @@ System.debug(' Response: ' + res.getBody());
 ## xMatters set up
 1. Import the Salesforce Communication Plan (See Salesforce.zip in files above).  If you use the attached Salesforce Communication Plan you can skip steps 2-4.
 
-2. Optional - Create an Inbound IB script
+2. Optional - Create an Inbound IB script using the following code or the code from the SalesForce-Inbound_IB.js file.
+```
+var data = JSON.parse(request.body);
 
-3. Optional - Create an Outbound IB Delivery script
+var datan = '{' + '"properties":' + JSON.stringify(data) + '}';
+var json = JSON.parse(datan);
+console.log(JSON.stringify(json));
 
-4. Optional - Create an Outbound IB Response script
+// Post trigger to form
+form.post(json);
+```
+
+3. Optional - Create an Outbound IB Delivery script using the following code or the code from the SalesForce-Outbound-Delivery_IB.js file
+```
+var callback = JSON.parse(request.body);
+console.log('Executing outbound integration for xMatters event ID: ' + callback.eventIdentifier);
+
+
+
+// Convert list of event properties to an eventProperties object
+if (callback.eventProperties && Array.isArray(callback.eventProperties)) {
+    var eventProperties = callback.eventProperties;
+    callback.eventProperties = {};
+
+    for (var i = 0; i < eventProperties.length; i++) {
+        var eventProperty = eventProperties[i];
+        var key = Object.keys(eventProperty)[0];
+        callback.eventProperties[key] = eventProperty[key];
+    }
+}
+
+// Handle responses without annotations
+if (callback.annotation == "null") {
+    callback.annotation = null;
+}
+
+console.log("Request body -" + JSON.stringify(callback));
+
+var ID      = callback.eventProperties['ID'];
+console.log(ID);
+
+console.log( 'Adding a note' );
+
+payload = {
+    "ParentId": ID,
+    "CommentBody": 'Update from xMatters at - ' + callback.recipient + " contacted on " + callback.device
+};
+
+req = http.request({
+  method: 'POST',
+  endpoint: 'SalesForce',
+  path: '/services/data/v22.0/sobjects/CaseComment' + '/',
+
+});
+
+resp = req.write( payload );
+console.log(resp);
+```
+
+4. Optional - Create an Outbound IB Response script using the following code or the code from the SalesForce-Outbound-Response_IB.js file
+
+```
+var callback = JSON.parse(request.body);
+console.log('Executing outbound integration for xMatters event ID: ' + callback.eventIdentifier);
+
+// Convert list of event properties to an eventProperties object
+if (callback.eventProperties && Array.isArray(callback.eventProperties)) {
+    var eventProperties = callback.eventProperties;
+    callback.eventProperties = {};
+
+    for (var i = 0; i < eventProperties.length; i++) {
+        var eventProperty = eventProperties[i];
+        var key = Object.keys(eventProperty)[0];
+        callback.eventProperties[key] = eventProperty[key];
+    }
+}
+// Handle responses without annotations
+if (callback.annotation == "null") {
+    callback.annotation = null;
+}
+
+
+
+var ID      = callback.eventProperties['ID'];
+
+var assigneeId = getUserId(callback.recipient );
+
+var req = http.request({
+  method: 'PATCH',
+  endpoint: 'SalesForce',
+  path: '/services/data/v22.0/sobjects/Case/' + ID,
+});
+var payload = JSON.stringify({
+            "OwnerId": assigneeId
+});
+var resp = req.write( payload );
+console.log( JSON.stringify( resp ) );
+
+
+
+/***********************************************
+ * getUserId
+ * Get a user's unique Id from SF.
+ ***********************************************/
+function getUserId( userName ) {
+
+    // We're using SOQL here
+      var queryParms = "q=select%20Id,%20name,%20username%20from%20User%20where%20Alias='" + encodeURI( userName ) + "'";
+    console.log(queryParms);
+
+    var request = http.request({
+        'endpoint': 'SalesForce',
+        'method': 'GET',
+        'path': '/services/data/v22.0/query/?' + queryParms,
+    });
+
+    console.log( 'Getting user "' + userName + '"' );
+
+    var response = request.write();
+    var userList = JSON.parse( response.body );
+
+    if( userList.totalSize === 0 ){
+        return null;
+    }
+    else
+        return userList.records[0].Id;
+
+}
+```
 
 5. In Integration Builder, Configure your Salesforce Endpoint  *NOTE: if you're using a relaxed IP policy, you'll need to add your API token to the end of your Password. For the following information see the SalesForce Setup steps above.
 * At the top navigation bar in SalesForce go to your name > Setup > Personal Setup > My Personal Information > Reset My Security Token.
