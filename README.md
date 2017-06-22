@@ -1,41 +1,14 @@
-# Instructions on creating the repo
-[Create the repo](https://help.github.com/articles/create-a-repo/) using your own Github account.
-When you create don't add a README or LICENSE. This will make sure to initialize an empty repo
-
-*Note*: These instructions are for using git at the terminal. The github desktop client is rather limited and likely won't save you any headaches. 
-
-Open a command line and do the following. Where `MY_NEW_REPO_NAME_HERE` is the name of your github repo and `MY_NEW_REPO_URL` is the url generated when you create the new repo. 
-
-```bash
-# Clone the template repo to the local file system
-git clone https://github.com/xmatters/xm-labs-template.git
-# Change the directory name to avoid confusion and then cd into it
-mv xm-labs-template MY_NEW_REPO_NAME_HERE  
-cd MY_NEW_REPO_NAME_HERE
-# We have to tell git that the place it needs to push is not where it came from
-git remote set-url origin https://MY_NEW_REPO_URL.git
-# Pust to the remote repo
-git push -u origin master
-```
-
-Then, make the updates to the `README.md` file and add any other files necessary. README.md files are written in github flavored markdown, see [here](https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet) for a quick reference. Periodically, do a `git commit` to stash the changes locally, then `git push origin master` to push the local changes to github.com. 
-
-Once you are all finished, let Travis know and he will then fork it to the xMatters account and update the necessary links in the xM Labs main page. From there if you update your repo, those changes can be merged into the xMatters account repo and everything will be kept up to date!
-
-# Template below:
----
-
-# Product Name Goes Here
-A note about what the product is and what this integration/scriptlet is all about. Check out the sweet video [here](media/mysweetvideo.mov). 
+# SalesForce Service
+Transform customer relationships, and your business, using the latest in mobile and data technology to deliver the most personalized customer experience ever — every time, and anywhere. This document instructs how to setup an integration between xMatters and SalesForce Case Management.  When a case is created, SalesForce reaches into xMatters to figure out who is on call for assignment of the case.
 
 # Pre-Requisites
-* Version 453 of App XYZ
-* Account in Application ABC
+* SalesForce Case Module
 * xMatters account - If you don't have one, [get one](https://www.xmatters.com)!
 
 # Files
-* [FileA.js](FileA.js) - The javascript file to be pasted into a Shared Library. It generally does xyz. 
-* [MySweetCommPlan.zip](MySweetCommPlan.zip) - The comm plan (if needed) that has all the coold scripts and email format and such. 
+* [xMattersAlert.tgr](xMattersAlert.tgr.js) - The trigger used after a Case is initially submitted.  It sets the tokens/fields of the case that will be passed into xMatters and calls the xMatters request function.
+* [xMattersreq.cls](xMattersreq.cls) - This is the Apex class that executes the Restful Post call into xMatters.
+* [SalesForce.zip](SalesForce.zip) - The comm plan (if needed) that has all the cool scripts and email format and such. 
 
 # How it works
 Add some info here detailing the overall architecture and how the integration works. I.e. An action happens in Application XYZ which triggers the thingamajig to fire a REST API call to the xMatters Inbound Integration. The integration script then parses out the payload and builds an event and passes that to xMatters. 
