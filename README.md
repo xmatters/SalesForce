@@ -15,16 +15,23 @@ When a new SalesForce Case is submitted, SalesForce pushes the information into 
 
 # Installation
 
-## Application ABC set up
+## SalesForce Setup
 1. Log into Salesforce as a Salesforce Administrator, Create a new 'Connected App' for OAuth. (Learn more about setting up your Connected App [HERE](https://help.salesforce.com/articleView?id=connected_app_create.htm&type=0)).
+* Setup > 'Quick Find / Search..' box (left side of the screen) > Create > Apps .  Once created, note the Consumer Key (Client ID) and Click to reveal Consumer Secret (Client Secret).
 <kbd>
-<img src="media/build_step_part1.png">
-</kbd>
-<kbd>
-<img src="media/build_step_part2.png">
+<img src="media/createconnectedappforauth.png">
 </kbd>
 
-2. Using the SFDC Developer Console, Create Apex Trigger to reach out to xMatters. You can use this code to build the message that will be sent to xMatters.  *NOTE: String Endpoint will need to be changed to the Integration URL of your Inbound Configuration in the xMatters Integration Builder:
+2. Log into Salesforce and create a xMatters user.  This user will be used to authenticate to make Restfual API calls for updates to Notes and Assignment field.  Once this user is created set a personal token.  At the top navigation bar go to your name > Setup > Personal Setup > My Personal Information > Reset My Security Token.
+
+<kbd>
+<img src="media/personalinfo.png">
+</kbd>
+<kbd>
+<img src="media/resetsecuritytoken.png">
+</kbd>
+
+3. Using the SFDC Developer Console, Create Apex Trigger to reach out to xMatters. You can use this code to build the message that will be sent to xMatters.  *NOTE: String Endpoint will need to be changed to the Integration URL of your Inbound Configuration in the xMatters Integration Builder:
 
 ```
 trigger xMattersAlert on Case (after insert) {
