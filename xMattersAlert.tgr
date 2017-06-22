@@ -1,0 +1,20 @@
+trigger xMattersAlert on Case (after insert) {
+String endpoint = 'https://[xmatters instance]/api/integration/1/functions/19c22b53-b1e0-46e7-94ed-8c8d0ad704d2/triggers';
+String caseid = '"Case ID":' + '"' + Trigger.New[0].CaseNumber + '"';
+string description = '"Description":' + '"' + Trigger.New[0].Description + '"';
+string priority = '"Priority":' + '"' + Trigger.New[0].Priority + '"';
+string status = '"Status":' + '"' + Trigger.New[0].Status + '"';
+string accountid = Trigger.New[0].AccountID;
+string accountidj = '"Account ID":' + '"' + Trigger.New[0].AccountID + '"';
+string recordid = '"ID":' + '"' + Trigger.New[0].Id + '"';
+
+Account record = [Select Name From Account Where Id = :accountid];
+
+string accountname = '"Account Name":' + '"' + record.Name + '"';
+String payload = '{' + recordid + ',' + caseid + ',' + description + ',' + priority + ',' + accountname + ',' + accountidj + ',' + status + '}';
+System.debug(accountid);
+System.Debug(payload);
+
+xmattersreq.xRESTCall(endpoint, payload);
+
+}
