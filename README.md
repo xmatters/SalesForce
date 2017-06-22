@@ -17,6 +17,12 @@ When a new SalesForce Case is submitted, SalesForce pushes the information into 
 
 ## Application ABC set up
 1. Log into Salesforce as a Salesforce Administrator, Create a new 'Connected App' for OAuth. (Learn more about setting up your Connected App [HERE](https://help.salesforce.com/articleView?id=connected_app_create.htm&type=0)).
+<kbd>
+<img src="media/build_step_part1.png">
+</kbd>
+<kbd>
+<img src="media/build_step_part2.png">
+</kbd>
 
 2. Using the SFDC Developer Console, Create Apex Trigger to reach out to xMatters. You can use this code to build the message that will be sent to xMatters.  *NOTE: String Endpoint will need to be changed to the Integration URL of your Inbound Configuration in the xMatters Integration Builder:
 
