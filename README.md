@@ -96,6 +96,9 @@ System.debug(' Response: ' + res.getBody());
 
 6. Add Recipients/Groups to the xMatters New Case Layout.  Login to xMatters with Developer rights.  Click on the Developer tab.  In the SalesForce Communication Plan navigate to the New Case Form.
 
+<kbd>
+<img src="media/xmattersform.png">
+</kbd>
 
 * In the New Case Form naviagete to the Layout view and add Recipeients.
 
@@ -105,7 +108,11 @@ System.debug(' Response: ' + res.getBody());
 
    
 # Testing
-Be specific. What should happen to make sure this code works? What would a user expect to see?
+1. The SalesForce Group is the default recipient in the xMatters New Case form.  Add yourself to the xMatters group.  Make sure this same user exists in SalesForce.
+2. In SalesForce Create a new case.
+3. Automatically, an event is created in xMatters with the SalesForce case  information.  The on call user in the xMatters SalesForce group is notified.  This is all logged back into SalesForce Case Comments.
+4. Have the on call user respond with "Accept the Assignment" in the xMatters notification.
+5. This updates SalesForce Assigned to Field and Case Comments.  If when you created the case in SalesForce it automatically assigned you the Assignment field you will not notice the update to the Assignment field.  Have a different user create the case then is on call to test out the functionality.  
 
 # Troubleshooting
-Optional section for how to troubleshoot. Especially anything in the source application that an xMatters developer might not know about. 
+Check the SalesForce developer console logging and xMatters Activity streams for the Inbound and Outbound integrations.
