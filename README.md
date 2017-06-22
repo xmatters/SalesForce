@@ -90,7 +90,19 @@ System.debug(' Response: ' + res.getBody());
 * If your password is mypassword, and your security token is XXXXXXXXXX, then you must enter mypasswordXXXXXXXXXX in the xMatters Endpoint to authenticate correctly.
 * Client ID & Client Secret can be found by accessing the connected App in Salesforce.  Setup > 'Quick Find / Search..' box (left side of the screen) > Create > Apps > Find 'Connected Apps' and click on the app (this is the connected app we setup earlier, recommended name is xMatters).  Find Consumer Key (Client ID) and Click to reveal Consumer Secret (Client Secret).
 
-3. Add Recipients/Groups to the xMatters New Case Layout: In this version, you'll need to add the recipients to the layout in the xMatters form.
+<kbd>
+<img src="media/xmattersendpoint.png">
+</kbd>
+
+6. Add Recipients/Groups to the xMatters New Case Layout.  Login to xMatters with Developer rights.  Click on the Developer tab.  In the SalesForce Communication Plan navigate to the New Case Form.
+
+
+* In the New Case Form naviagete to the Layout view and add Recipeients.
+
+<kbd>
+<img src="media/xmattersrecipients.png">
+</kbd>
+
    
 # Testing
 Be specific. What should happen to make sure this code works? What would a user expect to see?
