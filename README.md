@@ -27,10 +27,11 @@ When a new SalesForce Case is submitted, SalesForce pushes the information into 
 <kbd>
 <img src="media/personalinfo.png">
 </kbd>
+*
 <kbd>
 <img src="media/resetsecuritytoken.png">
 </kbd>
-
+*
 3. Using the SFDC Developer Console, Create Apex Trigger to reach out to xMatters. You can use this code to build the message that will be sent to xMatters.  *NOTE: String Endpoint will need to be changed to the Integration URL of your Inbound Configuration in the xMatters Integration Builder:
 
 ```
