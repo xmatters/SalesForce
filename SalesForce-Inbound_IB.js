@@ -10,9 +10,5 @@ var json = JSON.parse(datan);
 console.log(JSON.stringify(json));
 
 
-// Parse data from incoming payload and construct the trigger object.  This is not needed because the JSON values match the
-// properties/fields on the form.
-//trigger.properties.Company = json["soapenv:envelope"]["soapenv:body"]["notifications"]["notification"]["sobject"]["sf:accountid"];
-
 // Post trigger to form
 form.post(json);
