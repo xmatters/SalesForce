@@ -11,7 +11,7 @@ Transform customer relationships, and your business, using the latest in mobile 
 * [SalesForce-Outbound-Response_IB.js](SalesForce-Outbound-Response_IB.js) - Updates the Assigned user in the Salesforce Case when an xMatters user selects 'Assign to me' *NOTE: User must be have an active license in both xMatters & Salesforce
 * [SalesForce-Inbound_IB.js](SalesForce-Inbound_IB.js) - This recieves the SalesForce payload from the SalesForce Apex Trigger transforms the content (if needed) to be formated for the xMatter New Case Form and creates a new xMatters event. 
 * [SalesForce-Outbound-Delivery_IB.js](SalesForce-Outbound-Delivery_IB.js) - Sends a message back into Salesforce with record of recipient and device
-* [Salesforce.zip](Salesforce.zip) - The comm plan (if needed) that has all the cool scripts and email format and such. 
+* [Salesforce.zip](Salesforce.zip) - The communications plan that contains the integration scripts above. 
 
 # How it works
 When a new SalesForce Case is submitted, SalesForce pushes the information into xMatters.  xMatters kicks off an event and sends the SalesForce case information to the engineer on call.  That engineer has the ability to respond in the xMatters notification.  By accepting the assignment in the xMatters notification, this updates the SalesForce Assignment field.
@@ -35,27 +35,27 @@ When a new SalesForce Case is submitted, SalesForce pushes the information into 
 <img src="media/resetsecuritytoken.png">
 </kbd>
 
-3. Using the SFDC Developer Console, Create Apex Trigger to reach out to xMatters. You can use this code to build the message that will be sent to xMatters.  *NOTE: String Endpoint will need to be changed to the Integration URL of your Inbound Configuration in the xMatters Integration Builder:
+3. Using the SFDC Developer Console, Create Apex Trigger to reach out to xMatters. You can use this code to build the message that will be sent to xMatters. Where `XMATTERS_INBOUND_INTEGRATION_URL_HERE` is the inbound integration url. 
 
 ```
 trigger xMattersAlert on Case (after insert) {
-String endpoint = 'https://[xmatters instance]/api/integration/1/functions/19c22b53-b1e0-46e7-94ed-8c8d0ad704d2/triggers';
-String caseid = '"Case ID":' + '"' + Trigger.New[0].CaseNumber + '"';
-string description = '"Description":' + '"' + Trigger.New[0].Description + '"';
-string priority = '"Priority":' + '"' + Trigger.New[0].Priority + '"';
-string status = '"Status":' + '"' + Trigger.New[0].Status + '"';
-string accountid = Trigger.New[0].AccountID;
-string accountidj = '"Account ID":' + '"' + Trigger.New[0].AccountID + '"';
-string recordid = '"ID":' + '"' + Trigger.New[0].Id + '"';
-
-Account record = [Select Name From Account Where Id = :accountid];
-
-string accountname = '"Account Name":' + '"' + record.Name + '"';
-String payload = '{' + recordid + ',' + caseid + ',' + description + ',' + priority + ',' + accountname + ',' + accountidj + ',' + status + '}';
-System.debug(accountid);
-System.Debug(payload);
-
-xmattersreq.xRESTCall(endpoint, payload);
+   String endpoint    = 'XMATTERS_INBOUND_INTEGRATION_URL_HERE';
+   String caseid      = '"Case ID":' + '"' + Trigger.New[0].CaseNumber + '"';
+   string description = '"Description":' + '"' + Trigger.New[0].Description + '"';
+   string priority    = '"Priority":' + '"' + Trigger.New[0].Priority + '"';
+   string status      = '"Status":' + '"' + Trigger.New[0].Status + '"';
+   string accountid   = Trigger.New[0].AccountID;
+   string accountidj  = '"Account ID":' + '"' + Trigger.New[0].AccountID + '"';
+   string recordid    = '"ID":' + '"' + Trigger.New[0].Id + '"';
+   
+   Account record = [Select Name From Account Where Id = :accountid];
+   
+   string accountname = '"Account Name":' + '"' + record.Name + '"';
+   String payload = '{' + recordid + ',' + caseid + ',' + description + ',' + priority + ',' + accountname + ',' + accountidj + ',' + status + '}';
+   System.debug(accountid);
+   System.Debug(payload);
+   
+   xmattersreq.xRESTCall(endpoint, payload);
 
 }
 ```
@@ -63,157 +63,58 @@ xmattersreq.xRESTCall(endpoint, payload);
 
 ```
 global class xMattersreq {
-@future(callout=true)
-WebService static void xRESTCall(String endpoint, String payload){
-HttpRequest req = new HttpRequest();
-req.setEndpoint(endpoint);
-req.setMethod('POST');
-
-req.setBody(payload);
-req.setHeader( 'Content-Type', 'application/json' );
-
-Http http = new Http();
-HTTPResponse res = http.send(req);
-System.debug(' Response: ' + res.getBody());
-}
+  @future(callout=true)
+  WebService static void xRESTCall(String endpoint, String payload){
+    HttpRequest req = new HttpRequest();
+    req.setEndpoint(endpoint);
+    req.setMethod('POST');
+    
+    req.setBody(payload);
+    req.setHeader( 'Content-Type', 'application/json' );
+    
+    Http http = new Http();
+    HTTPResponse res = http.send(req);
+    System.debug(' Response: ' + res.getBody());
+  }
 }
 ```
  
 
 ## xMatters set up
-1. Import the Salesforce Communication Plan (See Salesforce.zip in files above).  If you use the attached Salesforce Communication Plan you can skip steps 2-4.
+**Option 1: Import the Communication Plan**
 
-2. Optional - Create an Inbound IB script using the following code or the code from the SalesForce-Inbound_IB.js file.
-```
-var data = JSON.parse(request.body);
+1. Import the [Salesforce.zip](Salesforce.zip) Communication Plan (See in files above).  
 
-var datan = '{' + '"properties":' + JSON.stringify(data) + '}';
-var json = JSON.parse(datan);
-console.log(JSON.stringify(json));
+**Option 2: Add the integration scripts to an existing Comm Plan**
 
-// Post trigger to form
-form.post(json);
-```
+1. Create a new Inbound Integration and paste in the contents of the [SalesForce-Inbound_IB.js](SalesForce-Inbound_IB.js) file.
+2. Create a new Outbound Integration for device deliveries with the following settings:
 
-3. Optional - Create an Outbound IB Delivery script using the following code or the code from the SalesForce-Outbound-Delivery_IB.js file
-```
-var callback = JSON.parse(request.body);
-console.log('Executing outbound integration for xMatters event ID: ' + callback.eventIdentifier);
+| Item  | Value |
+| ----- | ------|
+| Trigger | Device Delivery Updates |
+| Form | <Select the appropriate form> |
+| Action | Run a script |
+| Location | Cloud |
+| Name | Update Comment - Delivery |
 
+3. Then paste in the contents of the [SalesForce-Outbound-Delivery_IB.js](SalesForce-Outbound-Delivery_IB.js) script. 
 
+4. Create a new Outbound Integration for responses with the following settings:
 
-// Convert list of event properties to an eventProperties object
-if (callback.eventProperties && Array.isArray(callback.eventProperties)) {
-    var eventProperties = callback.eventProperties;
-    callback.eventProperties = {};
+| Item  | Value |
+| ----- | ------|
+| Trigger | Notification Responses |
+| Form | <Select the appropriate form> |
+| Action | Run a script |
+| Location | Cloud |
+| Name | Update Assign Field - Response |
 
-    for (var i = 0; i < eventProperties.length; i++) {
-        var eventProperty = eventProperties[i];
-        var key = Object.keys(eventProperty)[0];
-        callback.eventProperties[key] = eventProperty[key];
-    }
-}
+5. Then paste in the contents of the [SalesForce-Outbound-Response_IB.js](SalesForce-Outbound-Response_IB.js) script. 
 
-// Handle responses without annotations
-if (callback.annotation == "null") {
-    callback.annotation = null;
-}
+**Complete the setup**
 
-console.log("Request body -" + JSON.stringify(callback));
-
-var ID      = callback.eventProperties['ID'];
-console.log(ID);
-
-console.log( 'Adding a note' );
-
-payload = {
-    "ParentId": ID,
-    "CommentBody": 'Update from xMatters at - ' + callback.recipient + " contacted on " + callback.device
-};
-
-req = http.request({
-  method: 'POST',
-  endpoint: 'SalesForce',
-  path: '/services/data/v22.0/sobjects/CaseComment' + '/',
-
-});
-
-resp = req.write( payload );
-console.log(resp);
-```
-
-4. Optional - Create an Outbound IB Response script using the following code or the code from the SalesForce-Outbound-Response_IB.js file
-
-```
-var callback = JSON.parse(request.body);
-console.log('Executing outbound integration for xMatters event ID: ' + callback.eventIdentifier);
-
-// Convert list of event properties to an eventProperties object
-if (callback.eventProperties && Array.isArray(callback.eventProperties)) {
-    var eventProperties = callback.eventProperties;
-    callback.eventProperties = {};
-
-    for (var i = 0; i < eventProperties.length; i++) {
-        var eventProperty = eventProperties[i];
-        var key = Object.keys(eventProperty)[0];
-        callback.eventProperties[key] = eventProperty[key];
-    }
-}
-// Handle responses without annotations
-if (callback.annotation == "null") {
-    callback.annotation = null;
-}
-
-
-
-var ID      = callback.eventProperties['ID'];
-
-var assigneeId = getUserId(callback.recipient );
-
-var req = http.request({
-  method: 'PATCH',
-  endpoint: 'SalesForce',
-  path: '/services/data/v22.0/sobjects/Case/' + ID,
-});
-var payload = JSON.stringify({
-            "OwnerId": assigneeId
-});
-var resp = req.write( payload );
-console.log( JSON.stringify( resp ) );
-
-
-
-/***********************************************
- * getUserId
- * Get a user's unique Id from SF.
- ***********************************************/
-function getUserId( userName ) {
-
-    // We're using SOQL here
-      var queryParms = "q=select%20Id,%20name,%20username%20from%20User%20where%20Alias='" + encodeURI( userName ) + "'";
-    console.log(queryParms);
-
-    var request = http.request({
-        'endpoint': 'SalesForce',
-        'method': 'GET',
-        'path': '/services/data/v22.0/query/?' + queryParms,
-    });
-
-    console.log( 'Getting user "' + userName + '"' );
-
-    var response = request.write();
-    var userList = JSON.parse( response.body );
-
-    if( userList.totalSize === 0 ){
-        return null;
-    }
-    else
-        return userList.records[0].Id;
-
-}
-```
-
-5. In Integration Builder, Configure your Salesforce Endpoint  *NOTE: if you're using a relaxed IP policy, you'll need to add your API token to the end of your Password. For the following information see the SalesForce Setup steps above.
+1. In Integration Builder, Configure your Salesforce Endpoint  *NOTE: if you're using a relaxed IP policy, you'll need to add your API token to the end of your Password. For the following information see the SalesForce Setup steps above.
 * At the top navigation bar in SalesForce go to your name > Setup > Personal Setup > My Personal Information > Reset My Security Token.
 * If your password is mypassword, and your security token is XXXXXXXXXX, then you must enter mypasswordXXXXXXXXXX in the xMatters Endpoint to authenticate correctly.
 * Client ID & Client Secret can be found by accessing the connected App in Salesforce.  Setup > 'Quick Find / Search..' box (left side of the screen) > Create > Apps > Find 'Connected Apps' and click on the app (this is the connected app we setup earlier, recommended name is xMatters).  Find Consumer Key (Client ID) and Click to reveal Consumer Secret (Client Secret).
@@ -222,7 +123,7 @@ function getUserId( userName ) {
 <img src="media/xmattersendpoint.png">
 </kbd>
 
-6. Add Recipients/Groups to the xMatters New Case Layout.  Login to xMatters with Developer rights.  Click on the Developer tab.  In the SalesForce Communication Plan navigate to the New Case Form.
+2. Add Recipients/Groups to the xMatters New Case Layout.  Login to xMatters with Developer rights.  Click on the Developer tab.  In the SalesForce Communication Plan navigate to the New Case Form.
 
 <kbd>
 <img src="media/xmattersform.png">
@@ -238,9 +139,9 @@ function getUserId( userName ) {
 # Testing
 1. The SalesForce Group is the default recipient in the xMatters New Case form.  Add yourself to the xMatters group.  Make sure this same user exists in SalesForce.
 2. In SalesForce Create a new case.
-3. Automatically, an event is created in xMatters with the SalesForce case  information.  The on call user in the xMatters SalesForce group is notified.  This is all logged back into SalesForce Case Comments.
-4. Have the on call user respond with "Accept the Assignment" in the xMatters notification.
-5. This updates SalesForce Assigned to Field and Case Comments.  If when you created the case in SalesForce it automatically assigned you the Assignment field you will not notice the update to the Assignment field.  Have a different user create the case then is on call to test out the functionality.  
+3. An event is created automatically in xMatters with the SalesForce case information. The on-call user in the xMatters SalesForce group is notified.  This is all logged back into SalesForce Case Comments.
+4. Have the on-call user respond with "Accept the Assignment" in the xMatters notification.
+5. This updates SalesForce Assigned to Field and Case Comments.  If you created the case in SalesForce it automatically assigned you the Assignment field you will not notice the update to the Assignment field.  Have a different user create the case then is on-all to test out the functionality.  
 
 # Troubleshooting
 Check the SalesForce developer console logging and xMatters Activity streams for the Inbound and Outbound integrations.
