@@ -105,7 +105,7 @@ global class xMattersreq {
 | Item  | Value |
 | ----- | ------|
 | Trigger | Notification Responses |
-| Form | <Select the appropriate form> |
+| Form | `Select the appropriate form` |
 | Action | Run a script |
 | Location | Cloud |
 | Name | Update Assign Field - Response |
