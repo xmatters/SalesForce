@@ -20,7 +20,9 @@ Transform customer relationships, and your business, using the latest in mobile 
 * [SalesForce-Outbound-Response_IB.js](SalesForce-Outbound-Response_IB.js) - Updates the Assigned user in the Salesforce Case when an xMatters user selects 'Assign to me' *NOTE: User must be have an active license in both xMatters & Salesforce
 * [SalesForce-Inbound_IB.js](SalesForce-Inbound_IB.js) - This recieves the SalesForce payload from the SalesForce Apex Trigger transforms the content (if needed) to be formated for the xMatter New Case Form and creates a new xMatters event. 
 * [SalesForce-Outbound-Delivery_IB.js](SalesForce-Outbound-Delivery_IB.js) - Sends a message back into Salesforce with record of recipient and device
-* [Salesforce.zip](Salesforce.zip) - The communications plan that contains the integration scripts above. 
+* [Salesforce.zip](Salesforce.zip) - The communications plan that contains the integration scripts above.
+* [xMattersTest] - Test APEX Class for Passing Code Coverage in Salesforce
+* [xMattersHTTPCalloutMock] - Test APEX Class generates a Mock xMatters Response for xMattersTest.  Test classes cannot make web service calls in Salesforce.
 
 # How it works
 When a new SalesForce Case is submitted, SalesForce pushes the information into xMatters.  xMatters kicks off an event and sends the SalesForce case information to the engineer on call.  That engineer has the ability to respond in the xMatters notification.  By accepting the assignment in the xMatters notification, this updates the SalesForce Assignment field.
@@ -57,16 +59,24 @@ trigger xMattersAlert on Case (after insert) {
    string accountidj  = '"Account ID":' + '"' + Trigger.New[0].AccountID + '"';
    string recordid    = '"ID":' + '"' + Trigger.New[0].Id + '"';
    
-   Account record = [Select Name From Account Where Id = :accountid];
-   
+ if (accountid != null){
+  Account record = [Select Name  From Account Where Id = :accountid];
+        
    string accountname = '"Account Name":' + '"' + record.Name + '"';
-   String payload = '{' + recordid + ',' + caseid + ',' + description + ',' + priority + ',' + accountname + ',' + accountidj + ',' + status + '}';
-   System.debug(accountid);
-   System.Debug(payload);
-   
-   xmattersreq.xRESTCall(endpoint, payload);
+        
+   String payload = '{' + recordid + ',' + caseid + ',' + description + ',' + subject + ',' + priority + ',' + accountname + ',' + accountidj + ',' + status + '}';
+ 		System.debug(accountid);
+   		System.Debug(payload);
+   		xmattersreq.xRESTCall(endpoint, payload); 
+    } else {
+          string accountname = '"Account Name":' + '"No Account Found"';
+        
+       String payload = '{' + recordid + ',' + caseid + ',' + description + ',' + subject + ',' + priority + ',' + accountname + ',' + accountidj + ',' + status + '}';
+ 		System.debug(accountid);
+   		System.Debug(payload);
+   		xmattersreq.xRESTCall(endpoint, payload); 
+   	 }
 
-}
 ```
 3. In the Salesforce Developer Console, Create an Apex Class for your xMatters Request
 
@@ -87,7 +97,74 @@ global class xMattersreq {
   }
 }
 ```
- 
+
+// WHEN DEPLOYING INTO A SALESFORCE SANDBOX AND PUSHING TO PRODUCTION VIA CHANGE SET, CODE COVERAGE WILL BE REQUIRED.
+// THE FOLLOWING STEPS ARE REQUIRED FOR 100% CODE COVERAGE AND A SUCCESSFUL DEPLOYMENT:
+
+4. In the Salesforce Developer Console, Create a new Test Apex Class to emulate an xMatters Response for Code Coverage Testing
+
+xMattersHTTPCalloutMock
+
+```
+@isTest
+global class xMattersHttpCalloutMock implements HttpCalloutMock {
+    // Implement this interface method
+    global HTTPResponse respond(HTTPRequest request) {
+        // Create a fake response
+        HttpResponse response = new HttpResponse();
+        response.setHeader('Content-Type', 'application/json');
+        response.setBody('{"requestId": “xMatters_Integration_Builder_Response”}’);
+        response.setStatusCode(202);
+        return response; 
+    }
+}
+```
+
+
+5. In the Salesforce Developer Console, Create a new Test Apex Class
+
+xMattersTest
+
+```
+@isTest
+public class xMattersTest {
+
+    public static testMethod void SubmitCaseNoAccount() {
+        Case ca = new Case (Subject='Test xMatters Integration');
+            ca.Status = 'New';
+        	ca.Origin = 'Phone';
+        	ca.Description = 'Hello, This is A Test';
+        Test.setMock(HttpCalloutMock.class, new xMattersHttpCallOutmock());
+        insert ca;
+
+    }
+
+     public static testMethod void SubmitCaseAccount() {
+         
+        Account ac = new Account (Name='xMatters Test');
+         insert ac;
+         
+         ID acctID = ac.ID;
+         
+        Case ca = new Case (Subject='Test xMatters Integration');
+            ca.Status = 'New';
+        	ca.Origin = 'Phone';
+         	ca.AccountID = acctID;
+    	    ca.Description = 'Hello, This is A Test';
+        Test.setMock(HttpCalloutMock.class, new xMattersHttpCallOutmock());
+        insert ca;
+
+    }
+}
+```
+
+6. Create an Outbound Change Set and deploy to your Target Environment (More info on Salesforce Change Sets: https://developer.salesforce.com/docs/atlas.en-us.dev_lifecycle.meta/dev_lifecycle/creating_outbound_changeset.htm)
+
+7. In the Target Environment, Navigate to Inbound Change Sets.  Validate the Change set. You have the option of testing integration against all classes, or opting to test only against our integration test class. (Option 4, enter xMatterSTest)
+
+More Information on Change Set Validation: https://trailhead.salesforce.com/en/modules/app_deployment/units/app_deployment_changesets
+
+8. Confirm Change set was 'Successful'
 
 ## xMatters set up
 **Option 1: Import the Communication Plan**
