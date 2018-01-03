@@ -21,7 +21,7 @@ Transform customer relationships, and your business, using the latest in mobile 
 * [SalesForce-Inbound_IB.js](SalesForce-Inbound_IB.js) - This recieves the SalesForce payload from the SalesForce Apex Trigger transforms the content (if needed) to be formated for the xMatter New Case Form and creates a new xMatters event. 
 * [SalesForce-Outbound-Delivery_IB.js](SalesForce-Outbound-Delivery_IB.js) - Sends a message back into Salesforce with record of recipient and device
 * [Salesforce.zip](Salesforce.zip) - The communications plan that contains the integration scripts above.
-* [xMattersTest](xMattersTest) - Test APEX Class for Passing Code Coverage in Salesforce
+* [xMattersTestAPEXClass](xMattersTestAPEXClass) - Test APEX Class for Passing Code Coverage in Salesforce
 * [xMattersHttpCalloutMock](xMattersHttpCalloutMock) - Test APEX Class generates a Mock xMatters Response for xMattersTest.  Test classes cannot make web service calls in Salesforce.
 
 # How it works
