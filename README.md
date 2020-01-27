@@ -20,7 +20,7 @@ Transform customer relationships, and your business, using the latest in mobile 
 * [SalesForce-Outbound-Response_IB.js](SalesForce-Outbound-Response_IB.js) - Updates the Assigned user in the Salesforce Case when an xMatters user selects 'Assign to me' *NOTE: User must be have an active license in both xMatters & Salesforce
 * [SalesForce-Inbound_IB.js](SalesForce-Inbound_IB.js) - This recieves the SalesForce payload from the SalesForce Apex Trigger transforms the content (if needed) to be formated for the xMatter New Case Form and creates a new xMatters event. 
 * [SalesForce-Outbound-Delivery_IB.js](SalesForce-Outbound-Delivery_IB.js) - Sends a message back into Salesforce with record of recipient and device
-* [Salesforce.zip](Salesforce.zip) - The communications plan that contains the integration scripts above.
+* [Salesforce.zip](Salesforce.zip) - The Workflow that contains the integration scripts above.
 * [xMattersTestAPEXClass](xMattersTestAPEXClass) - Test APEX Class for Passing Code Coverage in Salesforce
 * [xMattersHttpCalloutMock](xMattersHttpCalloutMock) - Test APEX Class generates a Mock xMatters Response for xMattersTest.  Test classes cannot make web service calls in Salesforce.
 
@@ -167,11 +167,11 @@ More Information on Change Set Validation: https://trailhead.salesforce.com/en/m
 8. Confirm Change set was 'Successful'
 
 ## xMatters set up
-**Option 1: Import the Communication Plan**
+**Option 1: Import the Workflow**
 
-1. Import the [Salesforce.zip](Salesforce.zip) Communication Plan (See in files above).  
+1. Import the [Salesforce.zip](Salesforce.zip) Workflow (See in files above).  
 
-**Option 2: Add the integration scripts to an existing Comm Plan**
+**Option 2: Add the integration scripts to an existing Workflow**
 
 1. Create a new Inbound Integration and paste in the contents of the [SalesForce-Inbound_IB.js](SalesForce-Inbound_IB.js) file.
 2. Create a new Outbound Integration for device deliveries with the following settings:
@@ -209,7 +209,7 @@ More Information on Change Set Validation: https://trailhead.salesforce.com/en/m
 <img src="media/xmattersendpoint.png">
 </kbd>
 
-2. Add Recipients/Groups to the xMatters New Case Layout.  Login to xMatters with Developer rights.  Click on the Developer tab.  In the SalesForce Communication Plan navigate to the New Case Form.
+2. Add Recipients/Groups to the xMatters New Case Layout.  Login to xMatters with Developer rights.  Navigate to Workflows section. In the SalesForce Workflow navigate to the New Case Form.
 
 <kbd>
 <img src="media/xmattersform.png">
