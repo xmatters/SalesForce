@@ -1,6 +1,8 @@
 # SalesForce Service
 Transform customer relationships, and your business, using the latest in mobile and data technology to deliver the most personalized customer experience ever — every time, and anywhere. This document instructs how to setup an integration between xMatters and SalesForce Case Management.  When a case is created, SalesForce reaches into xMatters to figure out who is on call for assignment of the case.
 
+**Note**: This integration uses the older Integration Builder technology and some cumbersome APEX code for building the payload to xMatters. Instead, check out the [Case Alert](https://github.com/xmatters/xm-labs-salesforce-casealert) integration that has better APEX code and an HTTP trigger to parse the payload. 
+
 ---------
 
 <kbd>
